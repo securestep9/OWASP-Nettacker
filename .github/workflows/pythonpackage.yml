@@ -34,6 +34,7 @@ jobs:
       uses: suo/flake8-github-action@v1
       with: 
         checkName: build
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
    
     - name: Lint with flake8
       run: |
