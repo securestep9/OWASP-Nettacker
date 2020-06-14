@@ -43,10 +43,11 @@ jobs:
     - name: Echo file changes
       run: |
         echo Changed files: ${{ steps.get_file_changes.outputs.files }}
-    - name: Run flake8 on your PR - with annotations!
-      uses: tayfun/flake8-your-pr@1.0.1
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Flake8 annotations 
+      uses: TrueBrain/actions-flake8@master
+      with:
+       only_warn: 1
+       path: '**.py'
     - name: Lint with flake8
       run: |
         pip install flake8
