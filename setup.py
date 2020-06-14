@@ -7,7 +7,7 @@ from setuptools import setup
 from setuptools import find_packages
 
 if os.path.isdir("build"):
-    sys.exit("please remove the build folder first!")
+    sys.exit("build folder present - please remove the build folder first!")
 
 
 def requirements():
