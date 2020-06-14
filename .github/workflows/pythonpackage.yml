@@ -31,11 +31,7 @@ jobs:
         #install flake8
         pip install flake8
     - name: Flake8 action
-      uses: suo/flake8-github-action@v1
-      with: 
-        checkName: 'build'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}      
+      uses: rbialon/flake8-annotations@v1 
    
     - name: Lint with flake8
       run: |
