@@ -6,14 +6,18 @@ name: Python package
 on:
   push:
     branches: [ master ]
+    paths:
+      - '**.py'
   pull_request:
     branches: [ master ]
-
+    paths:
+      - '**.py'
 jobs:
   build:
 
     runs-on: ubuntu-latest
     strategy:
+      max-parallel: 2
       matrix:
         python-version: [2.7, 3.5, 3.6]
 
