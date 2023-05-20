@@ -20,3 +20,7 @@ scapy>=2.4.1; python_version < '3'
 censys==0.0.8
 six==1.15.0
 shodan==1.24.0
+certifi>=2022.12.7 # not directly required, pinned by Snyk to avoid a vulnerability
+cryptography>=39.0.1 # not directly required, pinned by Snyk to avoid a vulnerability
+twisted>=22.10.0rc1 # not directly required, pinned by Snyk to avoid a vulnerability
+werkzeug>=2.2.3 # not directly required, pinned by Snyk to avoid a vulnerability
