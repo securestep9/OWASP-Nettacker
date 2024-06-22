@@ -1,7 +1,7 @@
 argparse==1.4.0
 netaddr==0.9.0
 ipaddr==2.2.0
-requests==2.31.0
+requests==2.32.2
 aiohttp==3.9.1
 asyncio==3.4.3
 paramiko==3.4.0
@@ -14,3 +14,4 @@ py3DNS==4.0.0 # library_name=DNS
 numpy==1.26.2
 terminable_thread==0.7.1
 PyYAML==6.0.1 # library_name=yaml
+urllib3>=2.2.2 # not directly required, pinned by Snyk to avoid a vulnerability
