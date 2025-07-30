@@ -51,10 +51,6 @@ payloads:
             status_code:
               regex: '200'
               reverse: false
-            header:
-                X-Content-Type-Options: 
-                regex: 'nosniff'
-                reverse: false
             content:
               regex: 'XSS'
               reverse: false
