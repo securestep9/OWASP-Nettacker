@@ -53,7 +53,7 @@ payloads:
               reverse: false
             header:
               Set-Cookie: 
-                regex: SESSID
+                regex: "SESSID"
                 reverse: false
             content:
               regex: "XSS"
