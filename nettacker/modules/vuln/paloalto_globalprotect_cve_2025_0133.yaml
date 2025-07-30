@@ -53,8 +53,8 @@ payloads:
               reverse: false
             header:
               X-Content-Type-Options:
-              regex: 'nosniff'
-              reverse: false
+                regex: 'nosniff'
+                reverse: false
             content:
               regex: 'XSS'
               reverse: false
