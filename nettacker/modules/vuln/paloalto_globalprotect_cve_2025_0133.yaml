@@ -49,7 +49,11 @@ payloads:
           condition_type: and
           conditions:
             status_code:
-              regex: 200
+              regex: '200'
+              reverse: false
+            headers:
+              X-Content-Type-Options:
+              regex: 'nosniff'
               reverse: false
             content:
               regex: 'XSS'
