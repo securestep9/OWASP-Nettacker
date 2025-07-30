@@ -52,8 +52,8 @@ payloads:
               regex: "200"
               reverse: false
             header:
-              Content-Type: 
-                regex: text/html
+              Set-Cookie: 
+                regex: SESSID
                 reverse: false
             content:
               regex: "XSS"
