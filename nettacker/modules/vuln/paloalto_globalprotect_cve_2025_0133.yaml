@@ -51,10 +51,6 @@ payloads:
             status_code:
               regex: "200"
               reverse: false
-            header:
-              Set-Cookie: 
-                regex: "SESSID"
-                reverse: false
             content:
               regex: "XSS"
               reverse: false
