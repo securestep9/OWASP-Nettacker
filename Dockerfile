@@ -24,6 +24,9 @@ RUN poetry config virtualenvs.in-project true && \
 COPY nettacker nettacker
 COPY nettacker.py README.md ./
 
+# Build the project only after all code is present
+RUN poetry build
+
 ### Runtime stage - start from a clean Python image
 FROM ${PYTHON_IMAGE} AS runtime
 WORKDIR /usr/src/owaspnettacker
