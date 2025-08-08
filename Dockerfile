@@ -36,7 +36,9 @@ RUN useradd --create-home --shell /bin/bash owaspnettacker
 ### Bring from 'builder' just the virtualenv and the packaged Nettacker as a wheel 
 COPY --from=builder /usr/src/owaspnettacker/.venv ./.venv
 COPY --from=builder /usr/src/owaspnettacker/dist/*.whl .
-RUN chown -R appuser:appuser /usr/src/owaspnettacker
+
+### Change owner to owaspnettacker
+RUN chown -R owaspnettacker:owaspnettacker /usr/src/owaspnettacker
 
 ENV PATH=/usr/src/owaspnettacker/.venv/bin:$PATH
 ### Use pip inside the venv to install the wheel
