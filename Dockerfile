@@ -1,6 +1,9 @@
-### Multi-stage Dockerfile 
+### Multi-stage Dockerfile
+# Define the base image only once as a build argument
+ARG PYTHON_IMAGE=python:3.11.13-slim
+
 ### Build stage
-FROM python:3.11.13-slim AS builder 
+FROM ${PYTHON_IMAGE} AS builder
 ### Install OS dependencies and poetry package manager
 RUN apt-get update && \
     apt-get install -y gcc libssl-dev && \
@@ -10,18 +13,19 @@ RUN apt-get update && \
 
 WORKDIR /usr/src/owaspnettacker
 
-COPY nettacker nettacker
-COPY nettacker.py poetry.lock pyproject.toml README.md ./
+# Copy dependency files first to maximize Docker cache usage for installing dependencies
+COPY poetry.lock pyproject.toml ./
 
-### 1. Configure poetry to create virtualenvs inside the working folder
-### 2. Install Nettacker using Poetry
-### 3. Use poetry 'build' to package the project into distributable formats
+# Install dependencies (will be cached unless lock/toml change)
 RUN poetry config virtualenvs.in-project true && \
-    poetry install --no-cache --no-root --without dev --without test && \
-    poetry build
+    poetry install --no-cache --no-root --without dev --without test
+
+# Now copy the rest of the required source code
+COPY nettacker nettacker
+COPY nettacker.py README.md ./
 
 ### Runtime stage - start from a clean Python image
-FROM python:3.11.11-slim AS runtime
+FROM ${PYTHON_IMAGE} AS runtime
 WORKDIR /usr/src/owaspnettacker
 
 ### Bring from 'builder' just the virtualenv and the packaged Nettacker as a wheel 
@@ -32,7 +36,7 @@ ENV PATH=/usr/src/owaspnettacker/.venv/bin:$PATH
 ### Use pip inside the venv to install the wheel
 RUN ./.venv/bin/pip install nettacker-*.whl
 
-### We now have Nettacker installed in the virtualenv with 'nettacker' command whic his the new Entrypoint
+### We now have Nettacker installed in the virtualenv with 'nettacker' command which is the new entrypoint
 ENV docker_env=true
 ENTRYPOINT [ "nettacker" ]
-CMD ["-h"]
+CMD ["--help"]
