@@ -16,7 +16,7 @@ WORKDIR /usr/src/owaspnettacker
 # Copy dependency files first to maximize Docker cache usage for installing dependencies
 COPY poetry.lock pyproject.toml ./
 
-# Install dependencies (will be cached unless lock/toml change)
+# Install dependencies
 RUN poetry config virtualenvs.in-project true && \
     poetry install --no-cache --no-root --without dev --without test
 
