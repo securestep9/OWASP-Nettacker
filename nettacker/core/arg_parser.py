@@ -705,7 +705,7 @@ class ArgParser(ArgumentParser):
             try:
                 options.passwords = list(set(open(options.passwords_list).read().split("\n")))
             except Exception:
-                die_failure(_("error_passwords").format(options.passwords_list))
+                die_failure(_("error_passwords"))
         # Check custom wordlist
         if options.read_from_file:
             try:
