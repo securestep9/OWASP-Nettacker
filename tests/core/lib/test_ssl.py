@@ -179,8 +179,8 @@ def connection_params():
 
 class TestSslMethod:
     @patch("socket.socket")
-    @patch("ssl.wrap_socket")
-    def test_create_tcp_socket(self, mock_wrap, mock_socket, connection_params):
+    @patch("ssl.create_default_context")
+    def test__create_tcp_socket(self, mock_create_default_context, mock_socket, connection_params):
         create_tcp_socket(
             connection_params["HOST"], connection_params["PORT"], connection_params["TIMEOUT"]
         )
@@ -190,7 +190,10 @@ class TestSslMethod:
         socket_instance.connect.assert_called_with(
             (connection_params["HOST"], connection_params["PORT"])
         )
-        mock_wrap.assert_called_with(socket_instance)
+        context_instance = mock_create_default_context.return_value
+        context_instance.wrap_socket.assert_called_with(
+            socket_instance, server_hostname=connection_params["HOST"]
+        )
 
     @patch("nettacker.core.lib.ssl.is_weak_cipher_suite")
     @patch("nettacker.core.lib.ssl.is_weak_ssl_version")
