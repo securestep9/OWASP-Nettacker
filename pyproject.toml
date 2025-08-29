@@ -1,21 +1,16 @@
-[tool.poetry]
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[project]
 name = "nettacker"
 version = "0.4.0"
 description = "Automates information gathering, vulnerability scanning and aids penetration testing engagements in general"
-license = "Apache-2.0"
+license = { text = "Apache-2.0" }
 readme = "README.md"
-
-authors = ["OWASP Nettacker Contributors <nettacker-project@owasp.org>"]
-homepage = "https://owasp.org/nettacker"
-repository = "https://github.com/OWASP/Nettacker"
-documentation = "https://nettacker.readthedocs.io"
-
-classifiers = [
-    "License :: OSI Approved :: Apache Software License",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
+requires-python = "^3.9, <3.13"
+authors = [
+    { name = "OWASP Nettacker Contributors", email = "nettacker-project@owasp.org" }
 ]
 keywords = [
     "automation",
@@ -35,36 +30,49 @@ keywords = [
     "vulnerability-management",
     "vulnerability-scanner",
 ]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    "aiohttp>=3.9.5",
+    "argparse>=1.4.0",
+    "asyncio>=3.4.3",
+    "flask>=3.0.1",
+    "ipaddr>=2.2.0",
+    "multiprocess>=0.70.15",
+    "netaddr>=0.9.0",
+    "paramiko>=3.4.0",
+    "py3dns>=4.0.0",
+    "pyopenssl>=23.2.0",
+    "pysocks>=1.7.1",
+    "pyyaml>=6.0.1",
+    "requests>=2.32.3",
+    "sqlalchemy>=2.0.22",
+    "texttable>=1.7.0",
+    "zipp>=3.19.1",
+    "uvloop>=0.21.0",
+    "pymysql>=1.1.1",
+    "impacket>=0.11.0",
+]
 
+[project.scripts]
+nettacker = "nettacker.main:run"
+
+[project.urls]
+homepage = "https://owasp.org/nettacker"
+repository = "https://github.com/OWASP/Nettacker"
+documentation = "https://nettacker.readthedocs.io"
+"Sponsor" = "https://owasp.org/donate/?reponame=www-project-nettacker&title=OWASP+Nettacker"
+
+[tool.poetry]
 packages = [{ include = "nettacker"}]
 
 [tool.nettacker]
 release_name = "QUIN"
-
-[tool.poetry.scripts]
-nettacker = "nettacker.main:run"
-
-[tool.poetry.dependencies]
-python = "^3.9, <3.13"
-aiohttp = "^3.9.5"
-argparse = "^1.4.0"
-asyncio = "^3.4.3"
-flask = "^3.0.1"
-ipaddr = "^2.2.0"
-multiprocess = "^0.70.15"
-netaddr = "^0.9.0"
-paramiko = "^3.4.0"
-py3dns = "^4.0.0"
-pyopenssl = "^23.2.0"
-pysocks = "^1.7.1"
-pyyaml = "^6.0.1"
-requests = "^2.32.3"
-sqlalchemy = "^2.0.22"
-texttable = "^1.7.0"
-zipp = "^3.19.1"
-uvloop = "^0.21.0"
-pymysql = "^1.1.1"
-impacket = "^0.11.0"
 
 [tool.poetry.group.dev.dependencies]
 ipython = "^8.16.1"
@@ -76,9 +84,6 @@ coverage = "^7.3.2"
 pytest = ">=7.4.3,<9.0.0"
 pytest-cov = ">=4.1,<7.0"
 pytest-xdist = "^3.3.1"
-
-[tool.poetry.urls]
-"Sponsor" = "https://owasp.org/donate/?reponame=www-project-nettacker&title=OWASP+Nettacker"
 
 [tool.coverage.run]
 branch = true
@@ -99,7 +104,3 @@ line-length = 99
 
 # [tool.ruff.lint]
 # select = ["E4", "E7", "E9", "F", "T"]
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"

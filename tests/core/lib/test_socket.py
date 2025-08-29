@@ -141,17 +141,20 @@ def responses():
 
 class TestSocketMethod:
     @patch("socket.socket")
-    @patch("ssl.wrap_socket")
-    def test_create_tcp_socket(self, mock_wrap, mock_socket):
+    @patch("ssl.create_default_context")
+    def test_create_tcp_socket(self, mock_create_context, mock_socket):
         HOST = "example.com"
         PORT = 80
         TIMEOUT = 60
+        mock_context = mock_create_context.return_value
+        mock_sock = mock_socket.return_value
 
         create_tcp_socket(HOST, PORT, TIMEOUT)
-        socket_instance = mock_socket.return_value
-        socket_instance.settimeout.assert_called_with(TIMEOUT)
-        socket_instance.connect.assert_called_with((HOST, PORT))
-        mock_wrap.assert_called_with(socket_instance)
+
+        mock_sock.settimeout.assert_called_with(TIMEOUT)
+        mock_sock.connect.assert_called_with((HOST, PORT))
+        mock_create_context.assert_called_once()
+        mock_context.wrap_socket.assert_called_with(mock_sock, server_hostname=HOST)
 
     def test_response_conditions_matched_socket_icmp(self, socket_engine, substeps, responses):
         result = socket_engine.response_conditions_matched(
