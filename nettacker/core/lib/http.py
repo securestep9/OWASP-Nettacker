@@ -7,7 +7,11 @@ import re
 import time
 
 import aiohttp
-import uvloop
+
+try:
+    import uvloop
+except Exception:  # pragma: no cover
+    uvloop = None
 
 from nettacker.core.lib.base import BaseEngine
 from nettacker.core.utils.common import (
@@ -17,7 +21,11 @@ from nettacker.core.utils.common import (
     get_http_header_value,
 )
 
-asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+if uvloop is not None:
+    try:  # pragma: no cover
+        asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+    except Exception:
+        pass
 
 
 async def perform_request_action(action, request_options):
