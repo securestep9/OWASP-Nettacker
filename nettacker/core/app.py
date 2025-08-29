@@ -4,6 +4,7 @@ import os
 import shutil
 import socket
 import sys
+import time
 from threading import Thread
 
 import multiprocess
@@ -90,15 +91,42 @@ class Nettacker(ArgParser):
             try:
                 mysql_create_database()
                 mysql_create_tables()
-            except Exception:
+            except (IOError, OSError) as e:
+                log.error(f"Error creating MySQL database: {e}")
                 die_failure(_("database_connection_failed"))
         elif Config.db.engine == "postgres":
             try:
                 postgres_create_database()
-            except Exception:
+            except (IOError, OSError) as e:
+                log.error(f"Error creating PostgreSQL database: {e}")
                 die_failure(_("database_connection_failed"))
         else:
             die_failure(_("invalid_database"))
+
+    def wait_for_scan_to_finish(self, scan_id, module_name, timeout=600):
+        """
+        wait for a scan to finish by checking the database for new events.
+
+        Args:
+            scan_id: unique scan identifier
+            module_name: the name of the module
+            timeout: timeout in seconds
+
+        Returns:
+            True if the scan is finished, False otherwise
+        """
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            event_count = 0
+            for target in self.arguments.targets:
+                events = find_events(target, module_name, scan_id)
+                if events:
+                    event_count += len(events)
+            if event_count > 0:
+                time.sleep(1)
+            else:
+                return True
+        return False
 
     def expand_targets(self, scan_id):
         """
@@ -152,6 +180,7 @@ class Nettacker(ArgParser):
             selected_modules = self.arguments.selected_modules
             self.arguments.selected_modules = ["subdomain_scan"]
             self.start_scan(scan_id)
+            self.wait_for_scan_to_finish(scan_id, "subdomain_scan")
             self.arguments.selected_modules = selected_modules
             if "subdomain_scan" in self.arguments.selected_modules:
                 self.arguments.selected_modules.remove("subdomain_scan")
@@ -169,6 +198,7 @@ class Nettacker(ArgParser):
                 selected_modules = self.arguments.selected_modules
                 self.arguments.selected_modules = ["icmp_scan"]
                 self.start_scan(scan_id)
+                self.wait_for_scan_to_finish(scan_id, "icmp_scan")
                 self.arguments.selected_modules = selected_modules
                 if "icmp_scan" in self.arguments.selected_modules:
                     self.arguments.selected_modules.remove("icmp_scan")
@@ -183,6 +213,7 @@ class Nettacker(ArgParser):
             selected_modules = self.arguments.selected_modules
             self.arguments.selected_modules = ["port_scan"]
             self.start_scan(scan_id)
+            self.wait_for_scan_to_finish(scan_id, "port_scan")
             self.arguments.selected_modules = selected_modules
             if "port_scan" in self.arguments.selected_modules:
                 self.arguments.selected_modules.remove("port_scan")

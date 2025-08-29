@@ -178,19 +178,25 @@ def connection_params():
 
 
 class TestSslMethod:
-    @patch("socket.socket")
-    @patch("ssl.wrap_socket")
-    def test_create_tcp_socket(self, mock_wrap, mock_socket, connection_params):
-        create_tcp_socket(
+    @patch("nettacker.core.lib.ssl.create_tcp_socket")
+    @patch("nettacker.core.lib.ssl.ssl.get_server_certificate")
+    @patch("nettacker.core.lib.ssl.get_cert_info")
+    def test_ssl_certificate_scan(
+        self, mock_get_cert_info, mock_get_server_certificate, mock_create_tcp_socket, connection_params
+    ):
+        mock_create_tcp_socket.return_value = (MockConnectionObject(connection_params["HOST"]), True)
+        mock_get_server_certificate.return_value = "cert"
+        mock_get_cert_info.return_value = {}
+        SslLibrary().ssl_certificate_scan(
             connection_params["HOST"], connection_params["PORT"], connection_params["TIMEOUT"]
         )
-
-        socket_instance = mock_socket.return_value
-        socket_instance.settimeout.assert_called_with(connection_params["TIMEOUT"])
-        socket_instance.connect.assert_called_with(
+        mock_create_tcp_socket.assert_called_with(
+            connection_params["HOST"], connection_params["PORT"], connection_params["TIMEOUT"]
+        )
+        mock_get_server_certificate.assert_called_with(
             (connection_params["HOST"], connection_params["PORT"])
         )
-        mock_wrap.assert_called_with(socket_instance)
+        mock_get_cert_info.assert_called_with("cert")
 
     @patch("nettacker.core.lib.ssl.is_weak_cipher_suite")
     @patch("nettacker.core.lib.ssl.is_weak_ssl_version")

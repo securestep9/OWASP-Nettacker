@@ -21,21 +21,14 @@ def create_tcp_socket(host, port, timeout):
         socket_connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         socket_connection.settimeout(timeout)
         socket_connection.connect((host, port))
-        ssl_flag = False
+        context = ssl.create_default_context()
+        ssl_socket = context.wrap_socket(socket_connection, server_hostname=host)
+        ssl_flag = True
+        return ssl_socket, ssl_flag
     except ConnectionRefusedError:
         return None
-
-    try:
-        socket_connection = ssl.wrap_socket(socket_connection)
-        ssl_flag = True
     except Exception:
-        socket_connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        socket_connection.settimeout(timeout)
-        socket_connection.connect((host, port))
-    # finally:
-    #     socket_connection.shutdown()
-
-    return socket_connection, ssl_flag
+        return socket.socket(socket.AF_INET, socket.SOCK_STREAM), False
 
 
 class SocketLibrary(BaseLibrary):

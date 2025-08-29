@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from OpenSSL import crypto
 
 from nettacker.core.lib.base import BaseEngine, BaseLibrary
+from nettacker.core.lib.socket import create_tcp_socket
 
 log = logging.getLogger(__name__)
 
@@ -107,24 +108,6 @@ def is_weak_cipher_suite(host, port, timeout):
     return supported_ciphers, False
 
 
-def create_tcp_socket(host, port, timeout):
-    try:
-        socket_connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        socket_connection.settimeout(timeout)
-        socket_connection.connect((host, port))
-        ssl_flag = False
-    except ConnectionRefusedError:
-        return None
-
-    try:
-        socket_connection = ssl.wrap_socket(socket_connection)
-        ssl_flag = True
-    except Exception:
-        socket_connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        socket_connection.settimeout(timeout)
-        socket_connection.connect((host, port))
-
-    return socket_connection, ssl_flag
 
 
 def get_cert_info(cert):

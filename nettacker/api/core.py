@@ -1,4 +1,6 @@
+import hmac
 import os
+import html
 
 from flask import abort
 
@@ -117,13 +119,13 @@ def get_file(filename):
     Returns:
         content of the file or abort(404)
     """
-    if not os.path.normpath(filename).startswith(str(Config.path.web_static_dir)):
+    safe_dir = os.path.abspath(str(Config.path.web_static_dir))
+    safe_path = os.path.abspath(os.path.join(safe_dir, filename))
+    if os.path.commonprefix([safe_path, safe_dir]) != safe_dir:
         abort(404)
     try:
-        return open(filename, "rb").read()
-    except ValueError:
-        abort(404)
-    except IOError:
+        return open(safe_path, "rb").read()
+    except (IOError, ValueError):
         abort(404)
 
 
@@ -139,7 +141,9 @@ def api_key_is_valid(app, flask_request):
         200 HTTP code if it's valid otherwise 401 error
 
     """
-    if app.config["OWASP_NETTACKER_CONFIG"]["api_access_key"] != get_value(flask_request, "key"):
+    if not hmac.compare_digest(
+        app.config["OWASP_NETTACKER_CONFIG"]["api_access_key"], get_value(flask_request, "key")
+    ):
         abort(401, _("API_invalid"))
     return
 
@@ -181,7 +185,9 @@ def languages_to_country():
     for language in languages:
         res += """<option {2} id="{0}" data-content='<span class="flag-icon flag-icon-{1}"
         value="{0}"></span> {0}'></option>""".format(
-            language, flags[language], "selected" if language == "en" else ""
+            html.escape(language),
+            html.escape(flags[language]),
+            "selected" if language == "en" else "",
         )
     return res
 
@@ -200,7 +206,7 @@ def graphs():
         res += """
             <label><input id="{0}" type="radio" name="graph_name" value="{0}" class="radio">
             <a class="label label-default">{0}</a></label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;""".format(
-            graph
+            html.escape(graph)
         )
     return res
 
@@ -226,7 +232,7 @@ def profiles():
         res += """
             <label><input id="{0}" type="checkbox" class="checkbox checkbox-{0}">
             <a class="label label-{1}">{0}</a></label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;""".format(
-            profile, label
+            html.escape(profile), html.escape(label)
         )
     return res
 
@@ -262,6 +268,6 @@ def scan_methods():
         )
         res += """<label><input id="{0}" type="checkbox" class="checkbox checkbox-{2}-module">
         <a class="label label-{1}">{0}</a></label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;""".format(
-            sm, label, profile
+            html.escape(sm), html.escape(label), html.escape(profile)
         )
     return res

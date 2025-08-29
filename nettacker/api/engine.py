@@ -210,33 +210,6 @@ def index():
     )
 
 
-def sanitize_report_path_filename(report_path_filename):
-    """
-    sanitize the report_path_filename
-
-    Args:
-        report_path_filename: the report path filename
-
-    Returns:
-        the sanitized report path filename
-    """
-    filename = secure_filename(os.path.basename(report_path_filename))
-    if not filename:
-        return False
-    # Define a list or tuple of valid extensions
-    VALID_EXTENSIONS = (".html", ".htm", ".txt", ".json", ".csv")
-    if "." in filename:
-        if filename.endswith(VALID_EXTENSIONS):
-            safe_report_path = nettacker_path_config.results_dir / filename
-        else:
-            return False
-    else:
-        safe_report_path = nettacker_path_config.results_dir / filename
-    if not safe_report_path.is_relative_to(nettacker_path_config.results_dir):
-        return False
-    return safe_report_path
-
-
 @app.route("/new/scan", methods=["GET", "POST"])
 def new_scan():
     """
@@ -247,12 +220,31 @@ def new_scan():
     """
     api_key_is_valid(app, flask_request)
     form_values = dict(flask_request.form)
+    # Input validation
+    if "targets" not in form_values or not form_values["targets"]:
+        return jsonify(structure(status="error", msg="targets are not specified")), 400
+    if len(form_values["targets"].split(",")) > 100:
+        return jsonify(structure(status="error", msg="too many targets")), 400
+    if "thread_per_host" in form_values and not form_values["thread_per_host"].isdigit():
+        return jsonify(structure(status="error", msg="thread_per_host must be a number")), 400
+    if "thread_per_host" in form_values and int(form_values["thread_per_host"]) > 100:
+        return jsonify(structure(status="error", msg="too many threads per host")), 400
+    if "http_header" in form_values and len(form_values["http_header"]) > 1024:
+        return jsonify(structure(status="error", msg="http_header is too long")), 400
+
     # variables for future reference
-    raw_report_path_filename = form_values.get("report_path_filename")
     http_header = form_values.get("http_header")
-    report_path_filename = sanitize_report_path_filename(raw_report_path_filename)
-    if not report_path_filename:
-        return jsonify(structure(status="error", msg="Invalid report filename")), 400
+    report_type = form_values.get("report_type", "html")
+    if report_type not in ["html", "json", "csv", "txt"]:
+        report_type = "html"
+    report_filename = (
+        "report-"
+        + now(format="%Y_%m_%d_%H_%M_%S")
+        + "".join(random.choice(string.ascii_lowercase) for _ in range(10))
+        + "."
+        + report_type
+    )
+    report_path_filename = os.path.join(Config.path.results_dir, report_filename)
     form_values["report_path_filename"] = str(report_path_filename)
     for key in nettacker_application_config:
         if key not in form_values:
@@ -386,7 +378,8 @@ def get_result_content():
 
     try:
         filename, file_content = get_scan_result(scan_id)
-    except Exception:
+    except Exception as e:
+        log.error(f"Error getting scan result: {e}")
         return jsonify(structure(status="error", msg="database error!")), 500
 
     return Response(
@@ -546,11 +539,11 @@ def go_for_search_logs():
         page = int(get_value(flask_request, "page"))
         if page > 0:
             page -= 1
-    except Exception:
+    except (ValueError, TypeError):
         page = 0
     try:
         query = get_value(flask_request, "q")
-    except Exception:
+    except KeyError:
         query = ""
     return jsonify(search_logs(page, query)), 200
 
@@ -590,6 +583,7 @@ def start_api_subprocess(options):
                 threaded=True,
             )
     except Exception as e:
+        log.error(f"Error starting API subprocess: {e}")
         die_failure(str(e))
 
 
