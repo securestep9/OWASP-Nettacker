@@ -179,7 +179,7 @@ def connection_params():
 
 class TestSslMethod:
     @patch("socket.socket")
-    @patch("ssl.wrap_socket")
+    @patch("nettacker.core.lib.ssl._wrap_socket")
     def test_create_tcp_socket(self, mock_wrap, mock_socket, connection_params):
         create_tcp_socket(
             connection_params["HOST"], connection_params["PORT"], connection_params["TIMEOUT"]
@@ -192,11 +192,18 @@ class TestSslMethod:
         )
         mock_wrap.assert_called_with(socket_instance)
 
+    @patch("ssl.get_server_certificate", side_effect=ssl.SSLError)
     @patch("nettacker.core.lib.ssl.is_weak_cipher_suite")
     @patch("nettacker.core.lib.ssl.is_weak_ssl_version")
     @patch("nettacker.core.lib.ssl.create_tcp_socket")
     def test_ssl_version_and_cipher_scan_secure(
-        self, mock_connection, mock_ssl_check, mock_cipher_check, ssl_library, connection_params
+        self,
+        mock_connection,
+        mock_ssl_check,
+        mock_cipher_check,
+        mock_get_cert,
+        ssl_library,
+        connection_params,
     ):
         mock_connection.return_value = (
             MockConnectionObject(connection_params["HOST"], "TLSv1.3"),
@@ -224,11 +231,18 @@ class TestSslMethod:
 
         assert result == expected
 
+    @patch("ssl.get_server_certificate", side_effect=ssl.SSLError)
     @patch("nettacker.core.lib.ssl.is_weak_cipher_suite")
     @patch("nettacker.core.lib.ssl.is_weak_ssl_version")
     @patch("nettacker.core.lib.ssl.create_tcp_socket")
     def test_ssl_version_and_cipher_scan_weak(
-        self, mock_connection, mock_ssl_check, mock_cipher_check, ssl_library, connection_params
+        self,
+        mock_connection,
+        mock_ssl_check,
+        mock_cipher_check,
+        mock_get_cert,
+        ssl_library,
+        connection_params,
     ):
         mock_connection.return_value = (
             MockConnectionObject(connection_params["HOST"], "TLSv1.1"),
