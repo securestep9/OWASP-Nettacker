@@ -10,6 +10,18 @@ from nettacker.core.lib.base import BaseEngine, BaseLibrary
 log = logging.getLogger(__name__)
 
 
+def _wrap_socket(connection):
+    """Wrap a socket using an SSLContext for Python 3.13+ compatibility."""
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+    context.check_hostname = False
+    context.verify_mode = ssl.CERT_NONE
+    try:
+        context.options |= ssl.OP_LEGACY_SERVER_CONNECT
+    except AttributeError:
+        pass
+    return context.wrap_socket(connection)
+
+
 def is_weak_hash_algo(algo):
     algo = algo.lower()
     for unsafe_algo in ("md2", "md4", "md5", "sha1"):
@@ -117,7 +129,7 @@ def create_tcp_socket(host, port, timeout):
         return None
 
     try:
-        socket_connection = ssl.wrap_socket(socket_connection)
+        socket_connection = _wrap_socket(socket_connection)
         ssl_flag = True
     except Exception:
         socket_connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

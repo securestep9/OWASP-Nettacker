@@ -141,7 +141,7 @@ def responses():
 
 class TestSocketMethod:
     @patch("socket.socket")
-    @patch("ssl.wrap_socket")
+    @patch("nettacker.core.lib.socket._wrap_socket")
     def test_create_tcp_socket(self, mock_wrap, mock_socket):
         HOST = "example.com"
         PORT = 80
