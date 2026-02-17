@@ -42,7 +42,7 @@ def test_mysql_create_database_success(mock_create_engine):
     assert str(first_call_arg) == "SHOW DATABASES;"
 
     second_call_arg = call_args_list[1][0][0]
-    assert str(second_call_arg) == "CREATE DATABASE test_db "
+    assert str(second_call_arg) == "CREATE DATABASE `test_db`"
 
 
 @patch("nettacker.database.mysql.create_engine")
@@ -62,6 +62,20 @@ def test_mysql_create_database_already_exists(mock_create_engine):
     assert mock_conn.execute.call_count == 1
     call_arg = mock_conn.execute.call_args[0][0]
     assert str(call_arg) == "SHOW DATABASES;"
+
+
+@patch("nettacker.database.mysql.create_engine")
+def test_mysql_create_database_invalid_name(mock_create_engine):
+    mock_conn = MagicMock()
+    mock_engine = MagicMock()
+    mock_create_engine.return_value = mock_engine
+    mock_engine.connect.return_value.__enter__.return_value = mock_conn
+    mock_conn.execute.return_value = [("mysql",), ("information_schema",)]
+
+    Config.db.name = "invalid;db--name"
+
+    with pytest.raises(ValueError, match="Invalid database name"):
+        mysql_create_database()
 
 
 @patch("nettacker.database.mysql.create_engine")
