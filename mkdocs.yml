@@ -5,8 +5,10 @@ nav:
   - Home: Home.md
   - Installation: Installation.md
   - Usage: Usage.md
+  - Codebase Overview: CodebaseOverview.md
   - Modules: Modules.md
-  - Media: Media.md
   - API: API.md
   - Contributing: Developers.md
+  - Contributors: Contributors.md
+  - Media: Media.md
   - Events: Events.md

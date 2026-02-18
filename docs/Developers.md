@@ -35,7 +35,7 @@ Developers always could be aware of the OWASP Nettacker roadmap by checking
 
 # Creating Media
 
-We appreciated all kind of media to demonstrate the OWASP Nettacker in any language and environment. It is a great activity to help us grow our framework and get more publicity. Currently, we collected a few media on [Media](https://github.com/OWASP/Nettacker/wiki/Media) page. Feel free to post your Media on [this](https://github.com/OWASP/Nettacker/issues/1) page.
+We appreciated all kind of media to demonstrate the OWASP Nettacker in any language and environment. It is a great activity to help us grow our framework and get more publicity. Currently, we collected a few media on [Media](Media.md) page. Feel free to post your Media on [this](https://github.com/OWASP/Nettacker/issues/1) page.
 
 # Contribute to Language Libraries
 
@@ -52,7 +52,7 @@ In some cases language library does not exist, you can create a new file and add
 
 ## Modify/Update Language Libraries
 
-To contribute to the existing libraries, You may go to `lib/messages` select the file you want to contribute and
+To contribute to the existing libraries, You may go to `nettacker/locale` select the file you want to contribute and
 
 * 1- Translate English messages to the selected language.
 * 2- Compare the language library with **English** library and add new messages to this library and translate them.
