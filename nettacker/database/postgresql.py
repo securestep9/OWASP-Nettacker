@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import OperationalError
+from sqlalchemy.sql import literal_column
 
 from nettacker.config import Config
 from nettacker.database.models import Base
@@ -26,7 +27,7 @@ def postgres_create_database():
         )
         conn = engine.connect()
         conn = conn.execution_options(isolation_level="AUTOCOMMIT")
-        conn.execute(text(f"CREATE DATABASE {Config.db.name}"))
+        conn.execute(text("CREATE DATABASE ").append(literal_column(Config.db.name)))
         conn.close()
         engine = create_engine(
             "postgresql+psycopg2://{username}:{password}@{host}:{port}/{name}".format(
