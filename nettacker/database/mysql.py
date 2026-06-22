@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine, text
+from sqlalchemy.sql import bindparam
 
 from nettacker.config import Config
 from nettacker.database.models import Base
@@ -20,7 +21,7 @@ def mysql_create_database():
             existing_databases = [d[0] for d in existing_databases]
 
             if Config.db.name not in existing_databases:
-                conn.execute(text("CREATE DATABASE {0} ".format(Config.db.name)))
+                conn.execute(text("CREATE DATABASE :dbname").bindparams(bindparam("dbname", Config.db.name)))
     except Exception as e:
         print(e)
 
